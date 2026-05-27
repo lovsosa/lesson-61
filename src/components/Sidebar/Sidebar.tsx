@@ -1,4 +1,5 @@
 import type { Country } from "../../App"
+import './Sidebar.css'
 
 interface Props {
   countries: Country[];

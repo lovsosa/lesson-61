@@ -1,4 +1,5 @@
 import type { CountryDetail } from "../../App";
+import './AboutCountry.css'
 
 interface Props {
   loading: boolean;
