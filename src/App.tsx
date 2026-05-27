@@ -1,20 +1,23 @@
 import { useEffect, useState } from 'react'
 import './App.css'
 import { BASE_URL, COUNTRY, COUNTRY_LIST } from './consts';
+import Sidebar from './components/Sidebar/Sidebar';
+import AboutCountry from './components/AboutCountry/AboutCountry';
 
-interface Country {
+export interface Country {
   alpha3Code: string;
   independent: boolean;
   name: string;
 }
 
-interface CountryDetail {
+export interface CountryDetail {
   name: string;
   capital: string;
   population: number;
-  flags: string;
+  flags?: string;
   borders: Country[];
 }
+
 const App = () => {
   const [countries, setCountries] = useState<Country[]>([])
   const [selectedCode, setSelectedCode] = useState<string>()
@@ -83,48 +86,14 @@ const App = () => {
     getCountry()
   }, [selectedCode])
 
+  const chooseCountry = (alfaCode: string) => {
+    setSelectedCode(alfaCode)
+  }
+
   return (
-    <div className='layout'>
-      <aside className='sidebar'>
-        <div className='sidebarHeader'>
-          <h2 className='sidebarTitle'>Countries</h2>
-        </div>
-        <div className='sidebarList'>
-          {countries.map(c => (
-            <div key={c.alpha3Code} className='sidebarItem' onClick={() => setSelectedCode(c.alpha3Code)}>
-              {c.name}
-            </div>
-          ))}
-        </div>
-      </aside>
-      <main className='main'>
-        {loading ? (
-          <div className='loader'>
-            Загрузка...
-          </div>
-        ) : country ? (
-          <div className='countryCard'>
-            <img className='countryFlag' src={country.flags} alt={country.name} />
-            <h1 className='countryName'>{country.name}</h1>
-            <div className='countryInfo'>
-              <p><span>Capital</span>{country.capital}</p>
-              <p><span>Population</span>{country.population.toLocaleString()}</p>
-            </div>
-            {country.borders && country.borders.length > 0 && (
-              <div className='countryBorders'>
-                <span>Borders</span>
-                <div className='borderList'>
-                  {country.borders.map(b => (
-                    <button key={b.alpha3Code} onClick={() => setSelectedCode(b.alpha3Code)}>
-                      {b.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : null}
-      </main>
+    <div className='container'>
+      <Sidebar countries={countries} onSelect={chooseCountry} />
+      <AboutCountry loading={loading} country={country} onSelect={chooseCountry} />
     </div>
   )
 }
