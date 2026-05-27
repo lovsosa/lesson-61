@@ -102,9 +102,28 @@ const App = () => {
           <div className='loader'>
             Загрузка...
           </div>
-        ) : (
-          <h2>{country?.name}</h2>
-        )}
+        ) : country ? (
+          <div className='countryCard'>
+            <img className='countryFlag' src={country.flags} alt={country.name} />
+            <h1 className='countryName'>{country.name}</h1>
+            <div className='countryInfo'>
+              <p><span>Capital</span>{country.capital}</p>
+              <p><span>Population</span>{country.population.toLocaleString()}</p>
+            </div>
+            {country.borders && country.borders.length > 0 && (
+              <div className='countryBorders'>
+                <span>Borders</span>
+                <div className='borderList'>
+                  {country.borders.map(b => (
+                    <button key={b.alpha3Code} onClick={() => setSelectedCode(b.alpha3Code)}>
+                      {b.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ) : null}
       </main>
     </div>
   )
