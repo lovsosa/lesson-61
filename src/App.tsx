@@ -2,23 +2,24 @@ import { useEffect, useState } from 'react'
 import './App.css'
 import { BASE_URL, COUNTRY, COUNTRY_LIST } from './consts';
 
-interface Countries {
+interface Country {
   alpha3Code: string;
   independent: boolean;
   name: string;
 }
 
-interface Country {
+interface CountryDetail {
   name: string;
   capital: string;
   population: number;
   flags: string;
-  borders?: string[];
+  borders: Country[];
 }
 const App = () => {
-  const [countries, setCountries] = useState<Countries[]>([])
-  const [correctCountry, setCorrectCountry] = useState<string>()
-  const [country, setCountry] = useState<Country>()
+  const [countries, setCountries] = useState<Country[]>([])
+  const [selectedCode, setSelectedCode] = useState<string>()
+  const [country, setCountry] = useState<CountryDetail>()
+  const [loading, setLoading] = useState<boolean>(false)
 
   useEffect(() => {
     const getCountries = async () => {
@@ -29,7 +30,7 @@ const App = () => {
           throw new Error('Failed to fetch countries')
         }
 
-        const countriesData: Countries[] = await response.json()
+        const countriesData: Country[] = await response.json()
 
         setCountries(countriesData)
       } catch (error) {
@@ -42,10 +43,11 @@ const App = () => {
   }, [])
 
   useEffect(() => {
-    if (!correctCountry) return
+    if (!selectedCode) return
     const getCountry = async () => {
+      setLoading(true)
       try {
-        const response = await fetch(BASE_URL + COUNTRY + correctCountry)
+        const response = await fetch(BASE_URL + COUNTRY + selectedCode)
 
         if (!response.ok) {
           throw new Error('Failed to fetch country')
@@ -59,7 +61,7 @@ const App = () => {
             (item) => item.alpha3Code === code,
           );
 
-          return borderCountry?.name;
+          return borderCountry;
         });
 
         setCountry(
@@ -73,11 +75,13 @@ const App = () => {
         )
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false)
       }
 
     }
     getCountry()
-  }, [correctCountry, countries])
+  }, [selectedCode])
 
   return (
     <div className='layout'>
@@ -87,14 +91,20 @@ const App = () => {
         </div>
         <div className='sidebarList'>
           {countries.map(c => (
-            <div key={c.alpha3Code} className='sidebarItem' onClick={() => setCorrectCountry(c.alpha3Code)}>
+            <div key={c.alpha3Code} className='sidebarItem' onClick={() => setSelectedCode(c.alpha3Code)}>
               {c.name}
             </div>
           ))}
         </div>
       </aside>
       <main className='main'>
-        <h2>{country?.name}</h2>
+        {loading ? (
+          <div className='loader'>
+            Загрузка...
+          </div>
+        ) : (
+          <h2>{country?.name}</h2>
+        )}
       </main>
     </div>
   )
